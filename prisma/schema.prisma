@@ -1,0 +1,113 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Users {
+  id                  String   @id @default(uuid())
+  email               String   @unique
+  password            String
+  name                String?
+  solanaWalletAddress String?
+  solanaPrivateKey    String? 
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  Holders                     Holders[]
+  transactionHistoryAsSender  TransactionHistory[] @relation("TransactionHistoryAsSender")
+  transactionHistoryAsReciver TransactionHistory[] @relation("TransactionHistoryAsReciver")
+}
+
+model Collection {
+  id         String    @id @default(uuid())
+  name       String
+  floorPrice Float?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  NFTs      NFTs[]
+}
+
+model RarityDetails {
+  rarity      String   @id
+  color       String?
+  iconUrl     String?
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  NFTs        NFTs[]
+}
+
+model Holders {
+  id        String      @id @default(uuid())
+  nftId     String
+  userId    String?   
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @default(now()) @updatedAt
+
+  NFT       NFTs        @relation(fields: [nftId], references: [id], onDelete: Cascade)
+  User      Users?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  listings  Listing[]
+}
+
+model NFTs {
+  id            String        @id @default(uuid())
+  collectionId  String?       @map("collectionId")
+  tokenId       String        @unique
+  name          String
+  rarity        String?       
+  maxSupply     Int
+  currentSupply Int          @default(0)
+  uniqueHolders Int          @default(0)
+  metadata      Json?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @default(now()) @updatedAt
+
+  collection    Collection?    @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  rarityDetail  RarityDetails? @relation(fields: [rarity], references: [rarity])
+  Holderss      Holders[]
+  listings      Listing[]
+  transactionHistory TransactionHistory[]
+}
+
+model Listing {
+  id          String   @id @default(uuid())
+  nftId       String  
+  HoldersId    String  
+  price       Float
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  nft         NFTs      @relation(fields: [nftId], references: [id], onDelete: Cascade)
+  Holders     Holders   @relation(fields: [HoldersId], references: [id], onDelete: Cascade)
+}
+
+model TransactionHistory {
+  id              String   @id @default(uuid())
+  nftId           String   
+  senderWallletId String?  
+  reciverWalletId String?  
+  transactionType String
+  price           Float?
+  transactionDate DateTime @default(now())
+  metadata        Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now()) @updatedAt
+
+  nft             NFTs            @relation(fields: [nftId], references: [id], onDelete: Cascade)
+  senderWalllet   Users?    @relation("TransactionHistoryAsSender", fields: [senderWallletId], references: [id], onDelete: SetNull)
+  reciverWallet   Users?    @relation("TransactionHistoryAsReciver", fields: [reciverWalletId], references: [id], onDelete: SetNull)
+}
+
