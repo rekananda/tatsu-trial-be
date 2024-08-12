@@ -37,13 +37,13 @@ export class MagicEdenController {
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @Post('wallet/info')
+  @Get('wallet/info')
   @ApiOperation({ summary: 'Get logged user wallet info' })
   async mywalletInfo(@Request() req) {
     return this.magicEdenService.getWalletInfo(req.user.solanaWalletAddress);
   }
 
-  @Post('wallet/info/:walletAddress')
+  @Get('wallet/info/:walletAddress')
   @ApiOperation({ summary: 'Get wallet info by wallet address' })
   async walletInfo(@Param('walletAddress') walletAddress: string) {
     return this.magicEdenService.getWalletInfo(walletAddress);

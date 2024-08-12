@@ -34,6 +34,8 @@ export class MagicEdenService {
         ...{
           name: responseInfo.data.name || this.collectionSymbol,
           totalItems: responseInfo.data.totalItems || 0,
+          image: responseInfo.data.image,
+          description: responseInfo.data.description,
         },
         ...{
           totalSupply: responseHolder.data.totalSupply || 0,
@@ -93,11 +95,10 @@ export class MagicEdenService {
       .join('&');
 
     try {
-      const response = await axios.get(`${this.baseUrl}/v2/wallets/${walletAddress}/tokens?collection_symbol=${this.collectionSymbol}${params}`);
+      const response = await axios.get(`${this.baseUrl}/v2/wallets/${walletAddress}/tokens?collection_symbol=${this.collectionSymbol}${params !== '' ? '&' + params : params}`);
       return response.data;
     } catch (error) {
-      console.error(error);
-      throw error;
+      return [];
     }
   }
 
@@ -111,8 +112,7 @@ export class MagicEdenService {
       const { name, email } = user;
       return (result = { ...result, ...response.data, ...{ name, email } });
     } catch (error) {
-      console.error(error);
-      throw error;
+      return result;
     }
   }
 }

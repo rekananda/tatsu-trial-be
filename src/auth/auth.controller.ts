@@ -1,8 +1,8 @@
-import { Controller, Post, Body, UseGuards, Request, Get, NotFoundException, BadRequestException } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { JwtAuthGuard } from './jwt/jwt.guard';
+import { BadRequestException, Body, Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { AuthService } from './auth.service';
 import { LoginUserDto, RegisterUserDto } from './AuthDTO';
+import { JwtAuthGuard } from './jwt/jwt.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
